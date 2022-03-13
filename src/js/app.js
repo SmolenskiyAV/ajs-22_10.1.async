@@ -2,7 +2,7 @@
 import {GameSavingLoader} from './basic';
 
 
-// ### Task 9.1 ###
+// ### Task 10.1 ###
 
 let GameSavig = {};
 
@@ -17,12 +17,3 @@ GameSavingLoader.load()
   
  
  
-
-// ### Task 9.2 ###
-
-
-
-
-console.log();
-console.log('end of execution!');
-
