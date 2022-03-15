@@ -9,8 +9,11 @@ let GameSavig = {};
 GameSavingLoader.load()
   .then((saving) => {
     GameSavig = saving;
+
     console.log('Тип полученных данных : ' + typeof(GameSavig));
-    alert(GameSavig);
+    console.log('Размер полученных данных : ' + Object.keys(GameSavig).length);
+    
+    alert('userInfo:'+ '\n' + '  name: ' + GameSavig.userInfo.name);
   })
   .catch((error) => alert(error));
 

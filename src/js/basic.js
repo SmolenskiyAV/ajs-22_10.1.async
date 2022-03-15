@@ -3,57 +3,60 @@
 import json from './parser';
 import read from './reader';
 
-export class GameSavingLoader {
+class GameSaving {    // шаблон объекта сохранения
 
-  static load() {   // метод асинхронной загрузки данных, с последующей асинхронной их обработкой (цепочка ДВУХ промисов)
+  constructor(obj) {  
     
-    return new Promise((resolve, reject) => {    // объект "обещание" для загрузки данных
-
-      let loadData = read();                 // загрузка данных
+    this.created = obj.created, 
+    this.id = obj.id, 
+    this.userInfo = obj.userInfo
     
-      if (loadData === undefined) {    // если данные не загружены 
-        reject(new Error ('Ошибка. Файл не загружен!'))
-      }
-      else {
-        resolve(loadData);   // если данные загружены - возвращаем эти данные
-      };
-    
-    }).then(  // удачная загрузка
-        function(result) {
-          console.log('Данные успешно загружены.'); 
+  };
 
-          return  new Promise ((resolve, reject) => {    // объект "обещание" для парсинга данных
-
-            let parcedData = json(result);    // парсинг данных
-
-            if (parcedData === undefined) {
-            
-            reject(new Error ('Ошибка. Файл не обработан!'))
-            }
-            else resolve(parcedData);  // если данные распарсились - возвращаем эти данные
-        
-          });
-    
-        }
-      ).then(  // удачный парсинг
-          function(result) {
-            console.log('данные успешно обработаны.');
-            
-            return result;    // возврат распарсенных данных
-        
-          }
-        ).catch(   // ошибка! (данные либо не загружены, либо не распарсились)
-          function(err) {
-          console.log(err.message);
-          return err;     // возврат ошибки
-          }
-        );
-
-        
-
-  }
 };
 
 
-// ### Task 10.2 ###
+export class GameSavingLoader {
+
+  static load() {   // метод асинхронной загрузки данных, с последующей асинхронной их обработкой (цепочка ДВУХ промисов)
+            
+    let loadData = read();    // объект "обещание" для загрузки данных
+    
+    try {
+          const parcedData = loadData.then(   // асинхронный запуск загрузки данных (с вложенным внутрь "обещанием" парсинга загруженных данных) - цепочка "промисов"!
+            
+            function(loadingResult) {
+              
+             if (String(loadingResult) !== '[object ArrayBuffer]') throw new Error('Ошибка загрузки данных!');    // если тип загруженного объекта не 'ArrayBuffer'
+              
+              return (
+                
+                json(loadingResult).then(   // передача в асинхронную функцию парсинга загруженных данных
+
+                  function (parcingResult) {
+                    
+                    if ((parcingResult.length === 0) || (parcingResult.length === NaN)) throw new Error('Ошибка парсинга данных!'); // если парсинг загруженного объекта не выполнен
+                    
+                    return new GameSaving(JSON.parse(parcingResult))    // возврат готового "распарсеного" результата в формате  GameSaving-объект
+                  }
+                
+                )
+
+              );
+            
+            }
+          )
+    
+          return parcedData;
+
+    } catch(err) {
+
+        alert(err.message)    // обработка возникающих ошибок
+
+      };  
+    
+  };
+
+};
+
 
